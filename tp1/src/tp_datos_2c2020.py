@@ -8,10 +8,11 @@ Original file is located at
 
 Link del [informe](https://www.overleaf.com/9965622364cmzfxdpxcjzh)
 
+Link al [repo](https://github.com/moreover22/datos)
+
 ## Inicializacion de entorno
 """
 
-# import sys
 
 # Commented out IPython magic to ensure Python compatibility.
 import pandas as pd
@@ -213,7 +214,7 @@ for index, row in data_stage_count.iterrows():
     ax.text(row['Cantidad'] * 1.2 , row.name, round(row['Cantidad'], 2), 
             color='black', ha='left', va='center')
 
-plt.show()
+
 
 """## Cantidad de Oportunidades por Trimestre"""
 
@@ -408,6 +409,33 @@ _ = axes.set_yticklabels([regiones_espanol[label.get_text()]
 
 import matplotlib.ticker as mticker
 
+promedio_intervalos_por_region = df.groupby(['Total_Amount_Currency', 'Delivery_Year'])\
+  .agg({
+      'Total_Amount': 'mean'
+  })[['Total_Amount']].unstack()
+
+promedio_intervalos_por_region.columns = [anio for _, anio in 
+                                          promedio_intervalos_por_region.columns]
+
+axes = promedio_intervalos_por_region.T \
+  .plot.line(figsize=(15,8),
+  color=[
+      '#5EA9DB',
+      '#9469DB',
+      '#54DB76',
+      '#DB9B3D',
+      '#DBD665',
+  ])
+axes.xaxis.set_major_locator(mticker.MultipleLocator(1))
+
+axes.set(xlabel='Año', ylabel='Monto Total')
+axes.set_title('Evolución de la monto total por moneda', fontdict={
+                    'fontsize': 15,
+                    'fontweight': 2, }, pad=10)
+
+#_ = axes.legend([regiones_espanol.get(label, label) 
+             # for label in axes.get_legend_handles_labels()[1]])
+
 # TODO: Sacar middle east, no sé si está incluido en EMEA
 # TODO: Filtrar los que tienen pocos registros
 promedio_intervalos_por_region = casos_cerrados_filtrados_por_intervalo \
@@ -582,7 +610,7 @@ productos_won_lost_por_product_family['Won_Ratio'] = \
   productos_won_lost_por_product_family['Won'] / \
   productos_won_lost_por_product_family['Count'] # Desprecio los otros posibles
                                                 # Stages porque son poquitos
-print(productos_won_lost_por_product_family.describe().T)
+display(productos_won_lost_por_product_family.describe().T)
 productos_won_lost_por_product_family.head(5)
 
 productos_won_lost_por_product_family = productos_won_lost_por_product_family \
@@ -658,6 +686,33 @@ axes.set_title('Porcentaje de op. de ganadas por familia de producto',
 axes.set(xlabel='Porcentaje de op. ganadas', ylabel='Familia de producto')
 print()
 
+"""### Total Amount respecto TRF"""
+
+plt.style.use('fivethirtyeight')
+regiones = df['Region'].unique()
+fig, ax = plt.subplots()
+colores = ['red', 'blue', 'green', 'purple', 'yellow']
+index_color = 0
+for region in regiones:
+  df[df['Region'] == region].plot.scatter(x='TRF', y='Total_Amount', label=region, ax=ax, c=colores[index_color], figsize=(12,4))
+  index_color += 1
+
+regiones = df['Region'].unique()
+fig, ax = plt.subplots(1, 5, sharex=True, sharey=True)
+colores = ['red', 'blue', 'green', 'purple', 'yellow']
+index_color = 0
+for region in regiones:
+  df[df['Region'] == region].plot.scatter(x='TRF', y='Total_Amount', label=region, ax=ax[index_color], c=colores[index_color], figsize=(15,3))
+  index_color += 1
+
+regiones = df['Total_Amount_Currency'].unique()
+fig, ax = plt.subplots(1, 5, sharex=True, sharey=True)
+colores = ['red', 'blue', 'green', 'purple', 'yellow']
+index_color = 0
+for region in regiones:
+  df[df['Total_Amount_Currency'] == region].plot.scatter(x='TRF', y='Total_Amount', label=region, ax=ax[index_color], c=colores[index_color], figsize=(15,3))
+  index_color += 1
+
 """# Gráficos de prueba
 Faltan pulirlos, y puede que no sirvan
 """
@@ -676,12 +731,12 @@ def generate_chord_for_owners(data):
                                   }), 'index')
   links = data[['Account_Owner',	'Opportunity_Owner', 'Stage']]
   links = links[links['Account_Owner'] != links['Opportunity_Owner']]
-  # print(links)
-  # print(links.count())
+  # display(links)
+  # display(links.count())
 
-  # print(links.groupby(['Account_Owner',	'Opportunity_Owner']).size().reset_index())
+  # display(links.groupby(['Account_Owner',	'Opportunity_Owner']).size().reset_index())
 
-  # print(links.count())
+  # display(links.count())
   links['value'] = links.groupby(['Account_Owner',	'Opportunity_Owner']).transform('count')\
     .reset_index().iloc[:,1]
 
@@ -713,8 +768,8 @@ def generate_chord_for_owners(data):
 
 for name, group in df.groupby('Region'):
   print(name)
-  # print(group.head(10))
-  print(generate_chord_for_owners(group))
+  # display(group.head(10))
+  display(generate_chord_for_owners(group))
 
 import plotly.express as px
 import plotly.graph_objects as go

@@ -4,4 +4,4 @@
 [Colab](https://colab.research.google.com/drive/1X40mA29sErW1xz-fa-p8EWxaaLJhG6RR)
 
 - Informe en overleaf
-[Informe](https://www.overleaf.com/project/5faf70e70332b8eb54bed81b)
+[Informe](https://www.overleaf.com/read/gxvzbdxgqfhc)
